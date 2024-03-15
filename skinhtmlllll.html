@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+<header> Skin set</header>
+
+<h1>Welcome to our skin</h1>
+
+<h2>Insert your Image file</h2>
+
+<!-- Input element for image upload -->
+<input type="file" accept="image/*" id="imageInput">
+
+<!-- Display the selected image -->
+<img id="previewImage" style="max-width: 100%;" alt="Preview">
+
+<!-- Button to trigger prediction -->
+<button onclick="predictImage()">Predict</button>
+
+<!-- Predictions will be displayed here -->
+<div id="predictionResult"></div>
+
+<script>
+    // Function to preview the selected image
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('previewImage');
+        const file = input.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Function to make predictions
+    async function predictImage() {
+        const input = document.getElementById('imageInput');
+        const file = input.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            document.getElementById('predictionResult').innerText = data.prediction;
+        } catch (error) {
+            console.error('Prediction error:', error);
+            document.getElementById('predictionResult').innerText = 'Prediction error';
+        }
+    }
+
+    // Attach event listener to input element
+    document.getElementById('imageInput').addEventListener('change', previewImage);
+</script>
+
+</body>
+</html>
